@@ -1,4 +1,5 @@
 const userModel = require("../../models/user.model");
+const emailService = require("../../services/email.service")
 const jwt = require("jsonwebtoken");
 
 async function userRegister(req,res){
@@ -21,6 +22,7 @@ async function userRegister(req,res){
                 name:user.name
             }
         })
+        await emailService.sendRegistrationEmail(user.email,user.name);
     }catch(err){
         res.status(400).json({message:err.message});
     }
@@ -43,6 +45,8 @@ async function userLogin(req,res){
         const token = jwt.sign({id:user._id},process.env.JWT_SECRET_KEY,{expiresIn:"3d"});
         res.cookie(token);
         res.status(200).json({message:`logged in succesfully`, user});
+
+       
     }catch(err){
         res.status(400).json({message:err.message});
     }
